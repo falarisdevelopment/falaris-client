@@ -25,7 +25,8 @@ cd falaris-client
 - OPTIMIZING clickgui to not be hella laggy
 - removing ai slop
 - making *crystalaura* auto hit the target then crystal spam
-- add auto safe anchoring to *anchoraura*
+- add option to toggle auto safe anchoring to *anchoraura*
+- add option in *autototem* settings to automatically doublehand totem
 **Whole fixes:**
 - right clicking modules to open settings for each module
 - the search bar not searching in every category at once
@@ -52,7 +53,11 @@ cd falaris-client
 - *nofog*
 - *DISCORD RPC* (for falaris)
 - *possible ghost modules*
-
+- *fakelag*
+- *backtrack*
+- *auto elytra spear*
+- *autorestock*
+- *autostunslam*
 
 **All of the modules will be very configurable by right clicking on them**
 
