@@ -37,19 +37,19 @@ public final class XRay extends RenderModule {
     @Override
     protected void onWorldRender(WorldRenderContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.world == null) {
-            return;
-        }
+        if (client.player == null || client.world == null) return;
 
         Set<Block> targets = parseTargets();
-        int radius = (int) Math.ceil(range.get());
+        if (targets.isEmpty()) return;
+
+        int radius = (int) Math.min(range.get(), 64.0); // Limit radius to prevent severe lag
         BlockPos origin = client.player.getBlockPos();
+        
         for (BlockPos pos : BlockPos.iterateOutwards(origin, radius, radius, radius)) {
-            if (client.player.squaredDistanceTo(pos.toCenterPos()) > range.get() * range.get()) {
-                continue;
-            }
+            if (client.world.getBlockState(pos).isAir()) continue;
+            
             if (targets.contains(client.world.getBlockState(pos).getBlock())) {
-                RenderUtil.drawBlockBox(context, pos, RenderUtil.Color.rgba(178, 112, 255, 230));
+                RenderUtil.drawBlockBox(context, pos, RenderUtil.Color.rgba(178, 112, 255, 100));
             }
         }
     }

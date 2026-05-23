@@ -14,52 +14,75 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public final class PacketMine extends MovementModule {
-    private final ModeSetting mode = setting(new ModeSetting("Mode", "Mining packet flow.", "Normal", "Normal", "Instant", "Abort"));
+    private final ModeSetting mode = setting(new ModeSetting("Mode", "Mining packet flow.", "Normal", "Normal", "Instant"));
     private final DoubleSetting range = setting(new DoubleSetting("Range", "Maximum mining distance.", 5.0, 1.0, 6.0));
-    private final IntegerSetting delay = setting(new IntegerSetting("Delay", "Ticks between mining packets.", 3, 1, 30));
-    private final IntegerSetting jitter = setting(new IntegerSetting("Jitter", "Random extra ticks between mining packets.", 2, 0, 12));
-    private final BooleanSetting requireAttack = setting(new BooleanSetting("Require Attack", "Only mine while attack key is held.", true));
     private final BooleanSetting rotate = setting(new BooleanSetting("Rotate", "Face the mined block.", true));
+
+    private BlockPos miningPos;
+    private Direction miningSide;
+    private float progress;
 
     public PacketMine() {
         super("PacketMine", "Sends controlled block-digging packets for testing block interaction behavior.");
     }
 
     @Override
+    protected void onDisable() {
+        super.onDisable();
+        miningPos = null;
+        miningSide = null;
+        progress = 0;
+    }
+
+    @Override
     protected void onMovementTick(MinecraftClient client) {
-        if (client.player == null || client.world == null || client.crosshairTarget == null || client.player.networkHandler == null) {
-            return;
-        }
-        if (requireAttack.enabled() && !client.options.attackKey.isPressed()) {
-            return;
-        }
-        if (client.crosshairTarget.getType() != HitResult.Type.BLOCK) {
+        if (client.player == null || client.world == null || client.player.networkHandler == null) {
             return;
         }
 
-        BlockHitResult hit = (BlockHitResult) client.crosshairTarget;
-        BlockPos pos = hit.getBlockPos();
-        Direction side = hit.getSide();
-        if (client.player.squaredDistanceTo(Vec3d.ofCenter(pos)) > range.get() * range.get() || client.world.getBlockState(pos).isAir()) {
-            return;
+        if (miningPos != null) {
+            if (client.player.squaredDistanceTo(Vec3d.ofCenter(miningPos)) > range.get() * range.get() || client.world.getBlockState(miningPos).isAir()) {
+                miningPos = null;
+                miningSide = null;
+                progress = 0;
+            } else {
+                if (rotate.enabled()) {
+                    float yaw = MovementUtil.yawTo(client.player.getEyePos(), Vec3d.ofCenter(miningPos));
+                    rotations().rotateTo(yaw, client.player.getPitch(), 2);
+                }
+
+                progress += client.world.getBlockState(miningPos).calcBlockBreakingDelta(client.player, client.world, miningPos);
+
+                if (progress >= 1.0f) {
+                    send(client, PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, miningPos, miningSide);
+                    client.player.swingHand(Hand.MAIN_HAND);
+                    miningPos = null;
+                    miningSide = null;
+                    progress = 0;
+                }
+                return;
+            }
         }
 
-        if (rotate.enabled()) {
-            float yaw = MovementUtil.yawTo(client.player.getEyePos(), Vec3d.ofCenter(pos));
-            rotations().rotateTo(yaw, client.player.getPitch(), 2);
-        }
+        if (client.options.attackKey.isPressed() && client.crosshairTarget != null && client.crosshairTarget.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult hit = (BlockHitResult) client.crosshairTarget;
+            BlockPos pos = hit.getBlockPos();
+            Direction side = hit.getSide();
 
-        if (!ready(delay.get(), jitter.get())) {
-            return;
-        }
+            if (client.player.squaredDistanceTo(Vec3d.ofCenter(pos)) <= range.get() * range.get() && !client.world.getBlockState(pos).isAir()) {
+                miningPos = pos;
+                miningSide = side;
+                progress = 0;
 
-        send(client, PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, pos, side);
-        if (mode.is("Instant")) {
-            send(client, PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, pos, side);
-        } else if (mode.is("Abort")) {
-            send(client, PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, pos, side);
+                send(client, PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, miningPos, miningSide);
+                client.player.swingHand(Hand.MAIN_HAND);
+
+                if (mode.is("Instant")) {
+                    send(client, PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK, miningPos, miningSide);
+                    miningPos = null;
+                }
+            }
         }
-        client.player.swingHand(Hand.MAIN_HAND);
     }
 
     private void send(MinecraftClient client, PlayerActionC2SPacket.Action action, BlockPos pos, Direction side) {

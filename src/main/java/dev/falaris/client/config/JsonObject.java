@@ -11,7 +11,7 @@ public final class JsonObject {
         this.values = new LinkedHashMap<>();
     }
 
-    private JsonObject(Map<String, Object> values) {
+    JsonObject(Map<String, Object> values) {
         this.values = values;
     }
 
@@ -54,6 +54,24 @@ public final class JsonObject {
         }
 
         return Optional.empty();
+    }
+
+    public Optional<Long> longValue(String key) {
+        Object value = values.get(key);
+        if (value instanceof Number number) {
+            return Optional.of(number.longValue());
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<String> stringValue(String key) {
+        Object value = values.get(key);
+        return value instanceof String string ? Optional.of(string) : Optional.empty();
+    }
+
+    public Map<String, Object> values() {
+        return Map.copyOf(values);
     }
 
     private static void writeValue(StringBuilder builder, Object value, int indent) {
@@ -162,7 +180,7 @@ public final class JsonObject {
             while (cursor < input.length() && "-0123456789".indexOf(input.charAt(cursor)) >= 0) {
                 cursor++;
             }
-            return Integer.parseInt(input.substring(start, cursor));
+            return Long.parseLong(input.substring(start, cursor));
         }
 
         private char peek() {

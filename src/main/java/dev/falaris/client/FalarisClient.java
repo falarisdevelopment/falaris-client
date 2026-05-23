@@ -1,9 +1,11 @@
 package dev.falaris.client;
 
 import dev.falaris.client.config.ConfigManager;
+import dev.falaris.client.alt.AltManager;
 import dev.falaris.client.event.EventBus;
 import dev.falaris.client.event.events.ClientTickEvent;
 import dev.falaris.client.event.events.RenderWorldEvent;
+import dev.falaris.client.gui.alt.AltManagerScreen;
 import dev.falaris.client.gui.click.ClickGuiScreen;
 import dev.falaris.client.keybind.KeybindManager;
 import dev.falaris.client.module.ModuleManager;
@@ -15,6 +17,7 @@ import dev.falaris.client.module.modules.combat.KillAura;
 import dev.falaris.client.module.modules.combat.SilentAura;
 import dev.falaris.client.module.modules.combat.TriggerBot;
 import dev.falaris.client.module.modules.client.ClickGuiModule;
+import dev.falaris.client.module.modules.client.DiscordRpc;
 import dev.falaris.client.module.modules.movement.AirPlace;
 import dev.falaris.client.module.modules.movement.AutoSprint;
 import dev.falaris.client.module.modules.movement.AutoWalk;
@@ -36,22 +39,34 @@ import dev.falaris.client.module.modules.player.AutoLibrarian;
 import dev.falaris.client.module.modules.player.AutoSword;
 import dev.falaris.client.module.modules.player.AutoTool;
 import dev.falaris.client.module.modules.player.AutoTotem;
+import dev.falaris.client.module.modules.render.ArmorHud;
 import dev.falaris.client.module.modules.render.BlockESP;
 import dev.falaris.client.module.modules.render.ESP;
 import dev.falaris.client.module.modules.render.Fullbright;
+import dev.falaris.client.module.modules.render.InventoryHud;
 import dev.falaris.client.module.modules.render.NameTags;
+import dev.falaris.client.module.modules.render.ShulkerPreview;
 import dev.falaris.client.module.modules.render.StorageESP;
 import dev.falaris.client.module.modules.render.Tracers;
 import dev.falaris.client.module.modules.render.Trajectories;
 import dev.falaris.client.module.modules.render.XRay;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import dev.falaris.client.rotation.RotationManager;
+import dev.falaris.client.event.events.RenderHudEvent;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import dev.falaris.client.util.SafeDelay;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
 
 public final class FalarisClient implements ClientModInitializer {
     public static final String MOD_ID = "falaris-client";
@@ -63,6 +78,7 @@ public final class FalarisClient implements ClientModInitializer {
     private final EventBus eventBus = new EventBus();
     private final ConfigManager configManager = new ConfigManager(MOD_ID);
     private final ModuleManager moduleManager = new ModuleManager(eventBus, configManager);
+    private final AltManager altManager = new AltManager(configManager);
     private final KeybindManager keybindManager = new KeybindManager(moduleManager);
     private final RotationManager rotationManager = new RotationManager();
     private final SafeDelay safeDelay = new SafeDelay();
@@ -72,6 +88,7 @@ public final class FalarisClient implements ClientModInitializer {
         instance = this;
 
         moduleManager.register(new ClickGuiModule());
+        moduleManager.register(new DiscordRpc());
         moduleManager.register(new KillAura());
         moduleManager.register(new SilentAura());
         moduleManager.register(new CrystalAura());
@@ -101,6 +118,9 @@ public final class FalarisClient implements ClientModInitializer {
         moduleManager.register(new Tracers());
         moduleManager.register(new NameTags());
         moduleManager.register(new Fullbright());
+        moduleManager.register(new ArmorHud());
+        moduleManager.register(new InventoryHud());
+        moduleManager.register(new ShulkerPreview());
         moduleManager.register(new XRay());
         moduleManager.register(new Trajectories());
         moduleManager.register(new Freecam());
@@ -109,9 +129,28 @@ public final class FalarisClient implements ClientModInitializer {
         moduleManager.register(new MaceDMG());
         moduleManager.register(new KillPotion());
         configManager.load(moduleManager);
+        altManager.load();
+
+        ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            if (screen instanceof TitleScreen titleScreen) {
+                boolean exists = titleScreen.children().stream()
+                        .filter(child -> child instanceof ButtonWidget)
+                        .map(child -> ((ButtonWidget) child).getMessage().getString())
+                        .anyMatch("Alt Manager"::equals);
+                if (!exists) {
+                    addDrawableChild(titleScreen, ButtonWidget.builder(Text.literal("Alt Manager"), button -> client.setScreen(new AltManagerScreen(altManager))).dimensions(
+                            scaledWidth / 2 - 100,
+                            scaledHeight / 4 + 96,
+                            200,
+                            20
+                    ).build());
+                }
+            }
+        });
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onEndClientTick);
         WorldRenderEvents.AFTER_ENTITIES.register(context -> eventBus.post(new RenderWorldEvent(context)));
+        HudRenderCallback.EVENT.register((context, renderTickCounter) -> eventBus.post(new RenderHudEvent(context, renderTickCounter.getTickProgress(false))));
 
         LOGGER.info("{} initialized.", NAME);
     }
@@ -126,6 +165,16 @@ public final class FalarisClient implements ClientModInitializer {
     public void openClickGui() {
         MinecraftClient client = MinecraftClient.getInstance();
         client.setScreen(new ClickGuiScreen(moduleManager));
+    }
+
+    private static void addDrawableChild(Screen screen, ButtonWidget button) {
+        try {
+            Method method = Screen.class.getDeclaredMethod("addDrawableChild", net.minecraft.client.gui.Element.class);
+            method.setAccessible(true);
+            method.invoke(screen, button);
+        } catch (ReflectiveOperationException exception) {
+            LOGGER.warn("Failed to add Alt Manager button to title screen.", exception);
+        }
     }
 
     public static FalarisClient getInstance() {
@@ -158,5 +207,14 @@ public final class FalarisClient implements ClientModInitializer {
 
     public SafeDelay getSafeDelay() {
         return safeDelay;
+    }
+
+    public AltManager getAltManager() {
+        return altManager;
+    }
+
+    public void openAltManager() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        client.setScreen(new AltManagerScreen(altManager));
     }
 }

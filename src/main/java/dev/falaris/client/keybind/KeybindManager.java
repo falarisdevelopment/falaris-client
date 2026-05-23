@@ -3,6 +3,7 @@ package dev.falaris.client.keybind;
 import dev.falaris.client.module.Module;
 import dev.falaris.client.module.ModuleManager;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ChatScreen;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashSet;
@@ -17,7 +18,8 @@ public final class KeybindManager {
     }
 
     public void tick(MinecraftClient client) {
-        if (client.getWindow() == null) {
+        if (client.getWindow() == null || client.currentScreen instanceof ChatScreen) {
+            pressedKeys.clear();
             return;
         }
 

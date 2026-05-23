@@ -4,6 +4,7 @@ import dev.falaris.client.FalarisClient;
 import dev.falaris.client.event.EventBus;
 import dev.falaris.client.event.Subscription;
 import dev.falaris.client.setting.Setting;
+import net.minecraft.client.MinecraftClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +18,7 @@ public abstract class Module {
     private final Category category;
     private final List<Subscription> subscriptions = new ArrayList<>();
     private final List<Setting<?>> settings = new ArrayList<>();
+    private final dev.falaris.client.setting.BooleanSetting showNotifications = setting(new dev.falaris.client.setting.BooleanSetting("Notifications", "Show chat message when toggled.", true));
     private boolean enabled;
     private int keyCode = -1;
 
@@ -29,6 +31,12 @@ public abstract class Module {
 
     public final void toggle() {
         setEnabled(!enabled);
+        if (showNotifications.enabled()) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (client.player != null) {
+                client.player.sendMessage(net.minecraft.text.Text.literal("§7[§bfalaris§7] §fToggled §b" + name + " §7(" + (enabled ? "§aON" : "§cOFF") + "§7)"), false);
+            }
+        }
     }
 
     public final void setEnabled(boolean enabled) {

@@ -9,6 +9,7 @@ import net.minecraft.entity.LivingEntity;
 
 public final class KillAura extends CombatModule {
     private final DoubleSetting range = setting(new DoubleSetting("Range", "Maximum attack distance.", 4.2, 1.0, 6.0));
+    private final BooleanSetting useCooldown = setting(new BooleanSetting("Use Cooldown", "Wait for the weapon to fully charge before attacking.", true));
     private final DoubleSetting cps = setting(new DoubleSetting("CPS", "Average attacks per second.", 9.0, 1.0, 20.0));
     private final IntegerSetting jitter = setting(new IntegerSetting("Delay Jitter", "Random extra ticks between attacks.", 2, 0, 8));
     private final DoubleSetting rotationSpeed = setting(new DoubleSetting("Rotation Speed", "Maximum rotation step per tick.", 18.0, 1.0, 60.0));
@@ -47,9 +48,15 @@ public final class KillAura extends CombatModule {
             CombatUtil.face(rotations(), client.player, target.getEyePos(), rotationSpeed.get());
         }
 
-        int minimumTicks = Math.max(1, (int) Math.round(20.0 / cps.get()));
-        if (actionReady(minimumTicks, jitter.get())) {
-            CombatUtil.attack(client, target);
+        if (useCooldown.enabled()) {
+            if (client.player.getAttackCooldownProgress(0.5f) >= 1.0f) {
+                CombatUtil.attack(client, target);
+            }
+        } else {
+            int minimumTicks = Math.max(1, (int) Math.round(20.0 / cps.get()));
+            if (actionReady(minimumTicks, jitter.get())) {
+                CombatUtil.attack(client, target);
+            }
         }
     }
 }

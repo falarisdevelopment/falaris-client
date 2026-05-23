@@ -12,6 +12,7 @@ import net.minecraft.util.hit.HitResult;
 
 public final class TriggerBot extends CombatModule {
     private final DoubleSetting range = setting(new DoubleSetting("Range", "Maximum trigger distance.", 4.5, 1.0, 6.0));
+    private final BooleanSetting useCooldown = setting(new BooleanSetting("Use Cooldown", "Wait for the weapon to fully charge before attacking.", true));
     private final DoubleSetting cps = setting(new DoubleSetting("CPS", "Average attacks per second.", 10.0, 1.0, 20.0));
     private final IntegerSetting jitter = setting(new IntegerSetting("Delay Jitter", "Random extra ticks between attacks.", 2, 0, 8));
     private final BooleanSetting players = setting(new BooleanSetting("Players", "Target players.", true));
@@ -39,9 +40,15 @@ public final class TriggerBot extends CombatModule {
             return;
         }
 
-        int minimumTicks = Math.max(1, (int) Math.round(20.0 / cps.get()));
-        if (actionReady(minimumTicks, jitter.get())) {
-            CombatUtil.attack(client, target);
+        if (useCooldown.enabled()) {
+            if (client.player.getAttackCooldownProgress(0.5f) >= 1.0f) {
+                CombatUtil.attack(client, target);
+            }
+        } else {
+            int minimumTicks = Math.max(1, (int) Math.round(20.0 / cps.get()));
+            if (actionReady(minimumTicks, jitter.get())) {
+                CombatUtil.attack(client, target);
+            }
         }
     }
 

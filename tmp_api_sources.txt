@@ -1,0 +1,7 @@
+META-INF/MANIFEST.MF
+assets/
+assets/fabric/
+assets/fabric/icon.png
+fabric.mod.json
+LICENSE-fabric-api
+META-INF/

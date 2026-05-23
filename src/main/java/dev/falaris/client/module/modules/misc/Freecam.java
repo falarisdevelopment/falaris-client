@@ -1,11 +1,13 @@
 package dev.falaris.client.module.modules.misc;
 
 import com.mojang.authlib.GameProfile;
+import dev.falaris.client.event.EventPriority;
 import dev.falaris.client.setting.BooleanSetting;
 import dev.falaris.client.setting.DoubleSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.UUID;
@@ -40,6 +42,14 @@ public final class Freecam extends MiscModule {
         }
         camera.noClip = true;
         client.setCameraEntity(camera);
+
+        track(eventBus().subscribe(dev.falaris.client.event.events.RenderWorldEvent.class, EventPriority.NORMAL, event -> {
+            if (camera != null && client.player != null) {
+                camera.setYaw(client.player.getYaw());
+                camera.setPitch(client.player.getPitch());
+                camera.noClip = true;
+            }
+        }));
     }
 
     @Override
@@ -58,15 +68,20 @@ public final class Freecam extends MiscModule {
             return;
         }
 
-        camera.setYaw(client.player.getYaw());
-        camera.setPitch(client.player.getPitch());
+        camera.lastX = camera.getX();
+        camera.lastY = camera.getY();
+        camera.lastZ = camera.getZ();
+        camera.lastYaw = camera.getYaw();
+        camera.lastPitch = camera.getPitch();
+
         Vec3d velocity = inputVelocity(client);
-        camera.setPosition(new net.minecraft.util.math.Vec3d(camera.getX(), camera.getY(), camera.getZ()).add(velocity));
-        camera.setVelocity(Vec3d.ZERO);
+        camera.setVelocity(velocity);
+        camera.move(MovementType.SELF, velocity);
         camera.noClip = true;
 
         if (freezePlayer.enabled()) {
             client.player.setVelocity(Vec3d.ZERO);
+            client.player.setOnGround(true);
         }
     }
 

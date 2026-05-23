@@ -58,6 +58,7 @@ cd falaris-client
 - *auto elytra spear*
 - *autorestock*
 - *autostunslam*
+- cracked altmanager in minecraftmenu
 
 **All of the modules will be very configurable by right clicking on them**
 
