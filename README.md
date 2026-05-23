@@ -24,6 +24,8 @@ cd falaris-client
 - making clickgui smaller
 - OPTIMIZING clickgui to not be hella laggy
 - removing ai slop
+- making *crystalaura* auto hit the target then crystal spam
+- add auto safe anchoring to *anchoraura*
 **Whole fixes:**
 - right clicking modules to open settings for each module
 - the search bar not searching in every category at once
@@ -34,6 +36,23 @@ cd falaris-client
 - *autoattributeswap* (automatically attribute swaps like sword to mace for breach, sword to mace with density, wind charge to spear
 - *autopearlcatch* (automatically throws a ender pearl and a wind charge right after it in the air every specific amount of seconds)
 - *auto elytra mace*
+- *no render* (allows you to configure the no rendering of certain entities)
+- *Iaminnocent* (attempts to hide nsfw maparts / innapropriate things in minecraft)
+- *auto lava cast*
+- *velocity*
+- *spearkill*
+- *automountain*
+- *autolava*
+- *autodebuff* (throws debuffs at the enemy if you have them in your inventory)
+- *scaffold* (you can choose what blocks)
+- *auto mend*
+- *reach*
+- *fast use*
+- *bedaura*
+- *nofog*
+- *DISCORD RPC* (for falaris)
+- *possible ghost modules*
+
 
 **All of the modules will be very configurable by right clicking on them**
 
