@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "falaris-client",
+  "version": "1.0.0",
+  "name": "Falaris Client",
+  "description": "A client-side utility mod for creative testing, education, and private servers.",
+  "authors": [
+    "Falaris"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/falaris-client/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.falaris.client.FalarisClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.5",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
