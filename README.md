@@ -1,5 +1,13 @@
 # Falaris client
 BEST hacked client for all! Proudly made w/ ai
+# BUILDING
+```bash
+git clone https://github.com/falarisdevelopment/falaris-client.git
+cd falaris-client
+./gradlew.bat build
+```
+
+
 # TODO:
 **Modules to fix**:
 *freecam*
@@ -27,3 +35,13 @@ BEST hacked client for all! Proudly made w/ ai
 - *autopearlcatch* (automatically throws a ender pearl and a wind charge right after it in the air every specific amount of seconds)
 
 **All of the modules will be very configurable by right clicking on them**
+
+# LICENSING:
+This project is licensed under the GNU General Public License v3.0.
+
+If you use ANY code from the source:
+
+    You must disclose the source code of your modified work and the source code you took from this project. This means you are not allowed to use code from this project (even partially) in a closed-source and/or obfuscated application.
+    You must state clearly and obviously to all end users that you are using code from this project.
+    Your application must also be licensed under the same license.
+Thanks :D
