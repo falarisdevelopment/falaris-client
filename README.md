@@ -33,6 +33,7 @@ cd falaris-client
 - *arraylist* (shows current modules toggled)
 - *autoattributeswap* (automatically attribute swaps like sword to mace for breach, sword to mace with density, wind charge to spear
 - *autopearlcatch* (automatically throws a ender pearl and a wind charge right after it in the air every specific amount of seconds)
+- *auto elytra mace*
 
 **All of the modules will be very configurable by right clicking on them**
 
