@@ -1,5 +1,6 @@
 package dev.falaris.client.module.modules.combat;
 
+import dev.falaris.client.FalarisClient;
 import dev.falaris.client.rotation.RotationManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
@@ -23,7 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-final class CombatUtil {
+public final class CombatUtil {
     private CombatUtil() {
     }
 
@@ -79,6 +80,9 @@ final class CombatUtil {
         if (entity == player || !entity.isAlive() || entity.isRemoved() || player.squaredDistanceTo(entity) > range * range) {
             return false;
         }
+        if (entity instanceof PlayerEntity && FalarisClient.getInstance().getFriendsManager().isFriend(entity.getName().getString())) {
+            return false;
+        }
         if (!walls && !player.canSee(entity)) {
             return false;
         }
@@ -91,7 +95,7 @@ final class CombatUtil {
         return passives;
     }
 
-    static float[] rotationsTo(ClientPlayerEntity player, Vec3d target) {
+    public static float[] rotationsTo(ClientPlayerEntity player, Vec3d target) {
         Vec3d eyes = player.getEyePos();
         double diffX = target.x - eyes.x;
         double diffY = target.y - eyes.y;
@@ -124,7 +128,7 @@ final class CombatUtil {
         client.player.swingHand(Hand.MAIN_HAND);
     }
 
-    static int findItem(ClientPlayerEntity player, Item item) {
+    public static int findItem(ClientPlayerEntity player, Item item) {
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.getInventory().getStack(slot);
             if (stack.isOf(item)) {
@@ -134,7 +138,7 @@ final class CombatUtil {
         return -1;
     }
 
-    static boolean selectHotbarSlot(ClientPlayerEntity player, int slot) {
+    public static boolean selectHotbarSlot(ClientPlayerEntity player, int slot) {
         if (slot < 0 || slot > 8) {
             return false;
         }

@@ -1,6 +1,7 @@
 package dev.falaris.client.module.modules.client;
 
 import dev.falaris.client.FalarisClient;
+import dev.falaris.client.gui.click.ClickGuiScreen;
 import dev.falaris.client.module.Category;
 import dev.falaris.client.module.Module;
 import net.minecraft.client.MinecraftClient;
@@ -16,11 +17,10 @@ public final class ClickGuiModule extends Module {
     @Override
     protected void onEnable() {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client.currentScreen instanceof ChatScreen) {
+        if (client.currentScreen instanceof ChatScreen || client.currentScreen instanceof ClickGuiScreen) {
             setEnabled(false);
             return;
         }
-
         FalarisClient.getInstance().openClickGui();
         setEnabled(false);
     }

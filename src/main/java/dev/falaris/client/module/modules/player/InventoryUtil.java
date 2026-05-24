@@ -8,17 +8,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.SlotActionType;
 
-final class InventoryUtil {
-    static final int OFFHAND_SLOT = 45;
-    static final int HELMET_SLOT = 5;
-    static final int CHESTPLATE_SLOT = 6;
-    static final int LEGGINGS_SLOT = 7;
-    static final int BOOTS_SLOT = 8;
+public final class InventoryUtil {
+    public static final int OFFHAND_SLOT = 45;
+    public static final int HELMET_SLOT = 5;
+    public static final int CHESTPLATE_SLOT = 6;
+    public static final int LEGGINGS_SLOT = 7;
+    public static final int BOOTS_SLOT = 8;
 
-    private InventoryUtil() {
+    InventoryUtil() {
     }
 
-    static int screenSlotForInventoryIndex(int inventoryIndex) {
+    public static int screenSlotForInventoryIndex(int inventoryIndex) {
         if (inventoryIndex >= 0 && inventoryIndex <= 8) {
             return 36 + inventoryIndex;
         }
@@ -28,7 +28,7 @@ final class InventoryUtil {
         return -1;
     }
 
-    static int findItem(ClientPlayerEntity player, Item item, boolean hotbarOnly) {
+    public static int findItem(ClientPlayerEntity player, Item item, boolean hotbarOnly) {
         int end = hotbarOnly ? 9 : 36;
         for (int index = 0; index < end; index++) {
             if (player.getInventory().getStack(index).isOf(item)) {
@@ -105,7 +105,7 @@ final class InventoryUtil {
         return armorProtection(stack.getItem()) * 1000.0 + stack.getMaxDamage() - stack.getDamage();
     }
 
-    static boolean clickMove(MinecraftClient client, int fromScreenSlot, int toScreenSlot) {
+    public static boolean clickMove(MinecraftClient client, int fromScreenSlot, int toScreenSlot) {
         if (client.player == null || client.interactionManager == null || fromScreenSlot < 0 || toScreenSlot < 0) {
             return false;
         }
@@ -132,7 +132,7 @@ final class InventoryUtil {
         return true;
     }
 
-    static boolean isTotem(ItemStack stack) {
+    public static boolean isTotem(ItemStack stack) {
         return stack.isOf(Items.TOTEM_OF_UNDYING);
     }
 

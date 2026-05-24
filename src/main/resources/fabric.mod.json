@@ -3,7 +3,7 @@
   "id": "falaris-client",
   "version": "${version}",
   "name": "Falaris Client",
-  "description": "A client-side utility mod for creative testing, education, and private servers.",
+  "description": "best client for closet cheating.",
   "authors": [
     "Falaris"
   ],
@@ -11,6 +11,9 @@
   "license": "MIT",
   "icon": "assets/falaris-client/icon.png",
   "environment": "client",
+  "mixins": [
+    "falaris-client.mixins.json"
+  ],
   "entrypoints": {
     "client": [
       "dev.falaris.client.FalarisClient"

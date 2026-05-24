@@ -15,8 +15,8 @@ import java.util.Locale;
 import java.util.Set;
 
 public final class XRay extends RenderModule {
-    private final StringSetting ores = setting(new StringSetting("Ores", "Comma-separated ore ids.", "minecraft:diamond_ore,minecraft:deepslate_diamond_ore,minecraft:emerald_ore,minecraft:ancient_debris,minecraft:gold_ore,minecraft:deepslate_gold_ore"));
-    private final DoubleSetting range = setting(new DoubleSetting("Range", "Ore scan range.", 48.0, 8.0, 128.0));
+    private final StringSetting ores = setting(new StringSetting("Ores", "Comma-separated ore ids.", "minecraft:diamond_ore,minecraft:deepslate_diamond_ore,minecraft:emerald_ore,minecraft:ancient_debris,minecraft:gold_ore,minecraft:deepslate_gold_ore,minecraft:iron_ore,minecraft:deepslate_iron_ore,minecraft:coal_ore,minecraft:deepslate_coal_ore,minecraft:copper_ore,minecraft:deepslate_copper_ore,minecraft:redstone_ore,minecraft:deepslate_redstone_ore,minecraft:lapis_ore,minecraft:deepslate_lapis_ore,minecraft:nether_quartz_ore,minecraft:nether_gold_ore"));
+    private final DoubleSetting range = setting(new DoubleSetting("Range", "Ore scan range.", 64.0, 8.0, 128.0));
     private final BooleanSetting fullbright = setting(new BooleanSetting("Fullbright", "Apply high gamma while XRay is enabled.", true));
     private Double previousGamma;
 
@@ -42,14 +42,14 @@ public final class XRay extends RenderModule {
         Set<Block> targets = parseTargets();
         if (targets.isEmpty()) return;
 
-        int radius = (int) Math.min(range.get(), 64.0); // Limit radius to prevent severe lag
+        int radius = (int) Math.min(range.get(), 64.0);
         BlockPos origin = client.player.getBlockPos();
-        
+
         for (BlockPos pos : BlockPos.iterateOutwards(origin, radius, radius, radius)) {
             if (client.world.getBlockState(pos).isAir()) continue;
-            
+            if (client.player.squaredDistanceTo(pos.toCenterPos()) > range.get() * range.get()) continue;
             if (targets.contains(client.world.getBlockState(pos).getBlock())) {
-                RenderUtil.drawBlockBox(context, pos, RenderUtil.Color.rgba(178, 112, 255, 100));
+                RenderUtil.drawBlockBox(context, pos, RenderUtil.Color.rgba(178, 112, 255, 180));
             }
         }
     }

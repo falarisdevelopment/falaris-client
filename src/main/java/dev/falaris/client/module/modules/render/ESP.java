@@ -2,6 +2,7 @@ package dev.falaris.client.module.modules.render;
 
 import dev.falaris.client.setting.BooleanSetting;
 import dev.falaris.client.setting.DoubleSetting;
+import dev.falaris.client.setting.ModeSetting;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -12,11 +13,13 @@ import net.minecraft.entity.player.PlayerEntity;
 
 public final class ESP extends RenderModule {
     private final DoubleSetting range = setting(new DoubleSetting("Range", "Maximum entity render range.", 96.0, 8.0, 256.0));
-    private final DoubleSetting expand = setting(new DoubleSetting("Expand", "Box expansion amount.", 0.03, 0.0, 0.5));
+    private final DoubleSetting expand = setting(new DoubleSetting("Expand", "Box expansion amount.", 0.15, 0.0, 1.0));
     private final BooleanSetting players = setting(new BooleanSetting("Players", "Render player ESP.", true));
     private final BooleanSetting hostiles = setting(new BooleanSetting("Hostiles", "Render hostile mobs.", true));
     private final BooleanSetting passives = setting(new BooleanSetting("Passives", "Render passive mobs.", false));
     private final BooleanSetting invisibles = setting(new BooleanSetting("Invisibles", "Render invisible entities.", true));
+    private final BooleanSetting throughWalls = setting(new BooleanSetting("Through Walls", "Show ESP through walls.", true));
+    private final ModeSetting style = setting(new ModeSetting("Style", "ESP rendering style.", "Box", "Box", "Outline", "Both"));
 
     public ESP() {
         super("ESP", "Draws outline boxes around configured entities.");
@@ -40,7 +43,14 @@ public final class ESP extends RenderModule {
                 continue;
             }
 
-            RenderUtil.drawEntityBox(context, entity, color(entity), expand.get());
+            RenderUtil.Color espColor = color(entity);
+            boolean wallOpaque = throughWalls.enabled();
+
+            RenderUtil.Color drawColor = wallOpaque
+                    ? RenderUtil.Color.rgba((int)(espColor.red() * 255), (int)(espColor.green() * 255), (int)(espColor.blue() * 255), 180)
+                    : espColor;
+
+            RenderUtil.drawEntityBox(context, entity, drawColor, expand.get(), throughWalls.enabled());
         }
     }
 

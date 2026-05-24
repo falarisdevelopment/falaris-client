@@ -23,7 +23,7 @@ public final class PacketMine extends MovementModule {
     private float progress;
 
     public PacketMine() {
-        super("PacketMine", "Sends controlled block-digging packets for testing block interaction behavior.");
+        super("PacketMine", "Mines blocks by sending dig packets without animation.");
     }
 
     @Override

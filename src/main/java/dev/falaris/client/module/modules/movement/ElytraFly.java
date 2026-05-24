@@ -14,6 +14,7 @@ public final class ElytraFly extends MovementModule {
     private final BooleanSetting autoStart = setting(new BooleanSetting("Auto Start", "Starts fall flying when airborne.", true));
     private final IntegerSetting startDelay = setting(new IntegerSetting("Start Delay", "Ticks between start-flying packets.", 10, 1, 40));
     private final IntegerSetting startJitter = setting(new IntegerSetting("Start Jitter", "Random extra ticks for auto start.", 4, 0, 20));
+    private final BooleanSetting autoMoveForward = setting(new BooleanSetting("Auto Move Forward", "Automatically move forward when no movement keys pressed.", false));
 
     public ElytraFly() {
         super("ElytraFly", "Controlled powered movement while using an elytra.");
@@ -21,17 +22,13 @@ public final class ElytraFly extends MovementModule {
 
     @Override
     protected void onMovementTick(MinecraftClient client) {
-        if (client.player == null) {
-            return;
-        }
+        if (client.player == null) return;
 
         if (autoStart.enabled() && !client.player.isOnGround() && !client.player.isGliding() && ready(startDelay.get(), startJitter.get())) {
             client.player.networkHandler.sendPacket(new ClientCommandC2SPacket(client.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
         }
 
-        if (!client.player.isGliding()) {
-            return;
-        }
+        if (!client.player.isGliding()) return;
 
         Vec3d look = client.player.getRotationVector().normalize();
         double y = glide.get();
@@ -43,7 +40,11 @@ public final class ElytraFly extends MovementModule {
 
         Vec3d input = MovementUtil.inputVelocity(client.player, speed.get(), false, client);
         if (input.horizontalLengthSquared() <= 0.0001) {
-            input = new Vec3d(look.x * speed.get(), 0.0, look.z * speed.get());
+            if (autoMoveForward.enabled()) {
+                input = new Vec3d(look.x * speed.get(), 0.0, look.z * speed.get());
+            } else {
+                input = Vec3d.ZERO;
+            }
         }
 
         client.player.setVelocity(input.x, y, input.z);

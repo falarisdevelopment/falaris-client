@@ -88,8 +88,8 @@ public final class Freecam extends MiscModule {
     private Vec3d inputVelocity(MinecraftClient client) {
         double forward = client.options.forwardKey.isPressed() ? 1.0 : 0.0;
         forward -= client.options.backKey.isPressed() ? 1.0 : 0.0;
-        double strafe = client.options.leftKey.isPressed() ? 1.0 : 0.0;
-        strafe -= client.options.rightKey.isPressed() ? 1.0 : 0.0;
+        double strafe = client.options.rightKey.isPressed() ? 1.0 : 0.0;
+        strafe -= client.options.leftKey.isPressed() ? 1.0 : 0.0;
         double y = 0.0;
         y += client.options.jumpKey.isPressed() ? verticalSpeed.get() : 0.0;
         y -= client.options.sneakKey.isPressed() ? verticalSpeed.get() : 0.0;
