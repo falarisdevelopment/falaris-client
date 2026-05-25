@@ -66,17 +66,8 @@ public final class NameTags extends RenderModule {
         float maxHp = target.getMaxHealth();
         double dist = client.player.distanceTo(target);
         int hurtTime = target.hurtTime;
-        int armorTotal = 0;
-        if (target instanceof PlayerEntity) {
-            for (var slot : EquipmentSlot.values()) {
-                if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-                    var stack = target.getEquippedStack(slot);
-                    if (!stack.isEmpty() && stack.isDamageable()) {
-                        armorTotal += stack.getMaxDamage() - stack.getDamage();
-                    }
-                }
-            }
-        }
+        double armorVal = target.getAttributeValue(net.minecraft.entity.attribute.EntityAttributes.ARMOR);
+        int armorTotal = (int) Math.round(armorVal);
 
         String hpStr = String.format("%.0f / %.0f", hp, maxHp);
         String distStr = String.format("%.1f m", dist);
@@ -120,7 +111,7 @@ public final class NameTags extends RenderModule {
         if (!line2.isEmpty()) {
             ctx.drawText(client.textRenderer, line2, baseX + 2, baseY + (showHealth.enabled() ? 19 : 13), 0xFF88AAFF, true);
         }
-        if (showArmor.enabled() && target instanceof PlayerEntity) {
+        if (showArmor.enabled() && armorTotal > 0) {
             String armorStr = "A: " + armorTotal;
             int ax = baseX + w - client.textRenderer.getWidth(armorStr) - 2;
             ctx.drawText(client.textRenderer, armorStr, ax, baseY + (showHealth.enabled() ? 19 : 13), 0xFFAAAAAA, true);
@@ -149,17 +140,22 @@ public final class NameTags extends RenderModule {
                 if (playersOnly.enabled() && !(entity instanceof PlayerEntity)) continue;
                 List<String> lines = buildLines(client, living);
                 if (lines.isEmpty()) continue;
+                double dist = client.player.distanceTo(entity);
+                double dynamicScale = scale.get() * Math.min(1.0, 20.0 / Math.max(1.0, dist));
+                double dynamicY = yOffset.get() + entity.getHeight() * 0.3;
                 RenderUtil.drawNametag(context, entity, lines,
                     RenderUtil.Color.rgba(8, 10, 18, (int)(130 * bgOpacity.get())),
-                    0xFFFFFFFF, yOffset.get(), scale.get());
+                    0xFFFFFFFF, dynamicY, Math.max(0.01, dynamicScale));
             } else if (showGroundItems.enabled() && entity instanceof ItemEntity ie) {
                 ItemStack stack = ie.getStack();
                 if (stack.isEmpty()) continue;
                 String label = stack.getName().getString() + " x" + stack.getCount();
                 int color = highlightOp.enabled() && isOpItem(stack) ? 0xFFFFFF00 : 0xFFFFFFFF;
+                double dist = client.player.distanceTo(entity);
+                double dynamicScale = scale.get() * 0.8 * Math.min(1.0, 20.0 / Math.max(1.0, dist));
                 RenderUtil.drawNametag(context, entity, List.of(label),
                     RenderUtil.Color.rgba(8, 10, 18, (int)(130 * bgOpacity.get())),
-                    color, yOffset.get(), scale.get() * 0.8);
+                    color, yOffset.get() + 0.3, Math.max(0.01, dynamicScale));
             }
         }
     }

@@ -3,6 +3,7 @@ package dev.falaris.client.module;
 import dev.falaris.client.FalarisClient;
 import dev.falaris.client.event.EventBus;
 import dev.falaris.client.event.Subscription;
+import dev.falaris.client.notification.NotificationManager;
 import dev.falaris.client.setting.Setting;
 import net.minecraft.client.MinecraftClient;
 
@@ -36,6 +37,7 @@ public abstract class Module {
             if (client.player != null) {
                 client.player.sendMessage(net.minecraft.text.Text.literal("§7[§bfalaris§7] §fToggled §b" + name + " §7(" + (enabled ? "§aON" : "§cOFF") + "§7)"), false);
             }
+            NotificationManager.getInstance().toggle(name, enabled);
         }
     }
 

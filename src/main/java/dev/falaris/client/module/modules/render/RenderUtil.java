@@ -19,11 +19,11 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
-final class RenderUtil {
+public final class RenderUtil {
     private RenderUtil() {
     }
 
-    static void drawBox(WorldRenderContext context, Box box, Color color, boolean throughWalls) {
+    public static void drawBox(WorldRenderContext context, Box box, Color color, boolean throughWalls) {
         MatrixStack matrices = context.matrices();
         VertexConsumerProvider consumers = context.consumers();
         if (consumers == null) return;
@@ -67,16 +67,16 @@ final class RenderUtil {
         }
     }
 
-    static void drawBox(WorldRenderContext context, Box box, Color color) {
+    public static void drawBox(WorldRenderContext context, Box box, Color color) {
         drawBox(context, box, color, false);
     }
 
     private static void drawLine(VertexConsumer buffer, MatrixStack.Entry entry, double x1, double y1, double z1, double x2, double y2, double z2, Color color) {
-        buffer.vertex(entry, (float)x1, (float)y1, (float)z1).color(color.red, color.green, color.blue, color.alpha).normal(entry, 0, 1, 0).lineWidth(2.0f);
-        buffer.vertex(entry, (float)x2, (float)y2, (float)z2).color(color.red, color.green, color.blue, color.alpha).normal(entry, 0, 1, 0).lineWidth(2.0f);
+        buffer.vertex(entry, (float)x1, (float)y1, (float)z1).color(color.red, color.green, color.blue, color.alpha).normal(entry, 0, 1, 0).lineWidth(1.0f);
+        buffer.vertex(entry, (float)x2, (float)y2, (float)z2).color(color.red, color.green, color.blue, color.alpha).normal(entry, 0, 1, 0).lineWidth(1.0f);
     }
 
-    static void drawBlockBox(WorldRenderContext context, BlockPos pos, Color color) {
+    public static void drawBlockBox(WorldRenderContext context, BlockPos pos, Color color) {
         drawBox(context, new Box(pos), color, false);
     }
 
@@ -115,7 +115,7 @@ final class RenderUtil {
         float currentY = 0;
         for (String line : lines) {
             float width = textRenderer.getWidth(line);
-            textRenderer.draw(line, -width / 2, currentY, textColor, false, matrix, consumers, TextRenderer.TextLayerType.SEE_THROUGH, background.asArgb(), 0xF000F0);
+            textRenderer.draw(line, -width / 2, currentY, textColor, false, matrix, consumers, TextRenderer.TextLayerType.NORMAL, background.asArgb(), 0xF000F0);
             currentY += textRenderer.fontHeight + 1;
         }
 
@@ -130,8 +130,8 @@ final class RenderUtil {
         return stack.getCount() > 1 ? name + " x" + stack.getCount() : name;
     }
 
-    record Color(float red, float green, float blue, float alpha) {
-        static Color rgba(int red, int green, int blue, int alpha) {
+    public record Color(float red, float green, float blue, float alpha) {
+        public static Color rgba(int red, int green, int blue, int alpha) {
             return new Color(red / 255.0f, green / 255.0f, blue / 255.0f, alpha / 255.0f);
         }
 

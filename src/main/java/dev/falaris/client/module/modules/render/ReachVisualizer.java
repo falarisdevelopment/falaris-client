@@ -75,9 +75,9 @@ public final class ReachVisualizer extends RenderModule {
             double z2 = pz + Math.sin(a2) * r;
 
             buffer.vertex(entry, (float) x1, (float) py, (float) z1)
-                .color(cr, cg, cb, 0.6f).normal(entry, 0, 1, 0).lineWidth(1.5f);
+                .color(cr, cg, cb, 0.6f).normal(entry, 0, 1, 0).lineWidth(1.0f);
             buffer.vertex(entry, (float) x2, (float) py, (float) z2)
-                .color(cr, cg, cb, 0.6f).normal(entry, 0, 1, 0).lineWidth(1.5f);
+                .color(cr, cg, cb, 0.6f).normal(entry, 0, 1, 0).lineWidth(1.0f);
         }
     }
 

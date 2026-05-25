@@ -4,9 +4,6 @@ import dev.falaris.client.setting.BooleanSetting;
 import dev.falaris.client.setting.IntegerSetting;
 import dev.falaris.client.setting.DoubleSetting;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
@@ -22,7 +19,7 @@ public final class OrbitalStrike extends CombatModule {
     private final BooleanSetting summonBelow = setting(new BooleanSetting("Summon Below", "Spawn TNT at target y-level too.", true));
 
     private final Random random = new Random();
-    private int phase; // 0=idle, 1=striking
+    private int phase;
     private int waveIndex;
     private int ticksSinceWave;
     private int tntPerWave;
@@ -30,7 +27,7 @@ public final class OrbitalStrike extends CombatModule {
     private int totalSpawned;
 
     public OrbitalStrike() {
-        super("OrbitalStrike", "Summons a devastating TNT barrage from the sky (creative/op only).");
+        super("OrbitalStrike", "Summons a devastating TNT barrage from the sky. Requires creative mode + OP permissions.");
     }
 
     @Override
@@ -42,13 +39,19 @@ public final class OrbitalStrike extends CombatModule {
         tntPerWave = 0;
         totalSpawned = 0;
         strikeCenter = null;
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player != null && !client.player.isCreative()) {
+            client.player.sendMessage(net.minecraft.text.Text.literal("§7[§bfalaris§7] §cOrbitalStrike requires creative mode."), false);
+            setEnabled(false);
+        }
     }
 
     @Override
     protected void onCombatTick(MinecraftClient client) {
-        if (client.player == null || client.world == null) return;
+        if (client.player == null || client.world == null) { setEnabled(false); return; }
         if (!client.player.isCreative()) {
-            if (phase != 0) onDisable();
+            setEnabled(false);
             return;
         }
 
@@ -75,9 +78,7 @@ public final class OrbitalStrike extends CombatModule {
                     }
                 }
             }
-            case 2 -> {
-                setEnabled(false);
-            }
+            case 2 -> setEnabled(false);
         }
     }
 

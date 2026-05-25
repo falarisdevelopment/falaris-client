@@ -262,7 +262,21 @@ public final class PresetsManager {
             "velocity", "nofall", "autosprint", "noslowdown", "criticals",
             "autototem", "autoarmor", "triggerbot",
             "esp", "tracers", "nametags", "arraylist", "armorhud", "fullbright",
-            "elytrafly", "antibot"
+            "elytrafly", "antibot", "fakelag", "blink",
+            "baritone", "freecam", "nuker", "cheststealer", "autoreconnect",
+            "cheatprotector", "antihunger", "antiblind", "nopush"
+        });
+        defaultSets.put("2b2t", new String[]{
+            "killaura", "crystalaura", "reach", "hitboxes",
+            "velocity", "nofall", "autosprint", "noslowdown",
+            "autototem", "autoarmor", "autotool",
+            "esp", "nametags", "arraylist", "armorhud", "fullbright",
+            "baritone", "freecam", "blink", "fakelag",
+            "antibot", "cheatprotector", "antihunger", "antiblind", "nopush",
+            "autoreconnect", "invwalk", "cheststealer", "scaffold",
+            "antiafk", "autotrap", "holeesp", "itemesp",
+            "autolava", "autowater", "surround", "autocity",
+            "antilevitate", "timer"
         });
         defaultSets.put("Blatant", new String[]{
             "killaura", "crystalaura", "anchoraura", "automace", "bedaura",

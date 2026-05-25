@@ -3,6 +3,7 @@ package dev.falaris.client.mixin;
 import dev.falaris.client.FalarisClient;
 import dev.falaris.client.module.Module;
 import dev.falaris.client.module.modules.misc.Blink;
+import dev.falaris.client.module.modules.misc.FakeLag;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
@@ -18,13 +19,17 @@ public class ClientConnectionMixin {
     @Inject(method = "send", at = @At("HEAD"), cancellable = true)
     private void onSend(Packet<?> packet, CallbackInfo ci) {
         if (!(packet instanceof PlayerMoveC2SPacket)) return;
-        Optional<Module> found = FalarisClient.getInstance().getModuleManager().find("blink");
-        if (found.isPresent()) {
-            Blink blink = (Blink) found.get();
-            if (blink.shouldHoldPacket()) {
-                blink.holdPacket((PlayerMoveC2SPacket) packet);
-                ci.cancel();
-            }
+
+        Optional<Module> blink = FalarisClient.getInstance().getModuleManager().find("blink");
+        if (blink.isPresent()) {
+            Blink b = (Blink) blink.get();
+            if (b.shouldHoldPacket()) { b.holdPacket((PlayerMoveC2SPacket) packet); ci.cancel(); return; }
+        }
+
+        Optional<Module> fakelag = FalarisClient.getInstance().getModuleManager().find("fakelag");
+        if (fakelag.isPresent()) {
+            FakeLag f = (FakeLag) fakelag.get();
+            if (f.shouldHoldPacket()) { f.holdPacket((PlayerMoveC2SPacket) packet); ci.cancel(); }
         }
     }
 }

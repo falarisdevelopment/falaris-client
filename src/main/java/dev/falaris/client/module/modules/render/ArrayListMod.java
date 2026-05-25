@@ -95,8 +95,8 @@ public final class ArrayListMod extends RenderModule {
                 String val = s.get().toString();
                 return "(" + val + " cps)";
             }
-            if (n.contains("mode")) {
-                return "(" + ((dev.falaris.client.setting.ModeSetting) s).get() + ")";
+            if (n.contains("mode") && s instanceof ModeSetting ms) {
+                return "(" + ms.get() + ")";
             }
         }
         return "";
